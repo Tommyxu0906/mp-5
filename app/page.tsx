@@ -58,20 +58,20 @@ export default function Home() {
       </form>
 
       {error && (
-        <p className="text-red text-center mt-4">{error}</p>
+        <p className="text-red-500 text-center mt-4">{error}</p>
       )}
 
       {result && (
         <div className="max-w-md mx-auto mt-4 flex items-center justify-between">
           <a
             href={result}
-            className="text-blue break-all"
+            className="text-blue-600 break-all"
           >
             {result}
           </a>
           <button
             onClick={() => navigator.clipboard.writeText(result)}
-            className="ml-2 px-3 py-1 bg-blue text-white rounded"
+            className="ml-2 px-3 py-1 border border-blue-500 text-blue-500 rounded"
           >
             Copy
           </button>
