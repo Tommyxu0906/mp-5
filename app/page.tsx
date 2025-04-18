@@ -1,38 +1,82 @@
 'use client';
 import { useState } from 'react';
+import createNewAlias from '@/lib/createNewAlias';
 
 export default function Home() {
-  const [url, setUrl] = useState('');
-  const [alias, setAlias] = useState('');
-  const [shortened, setShortened] = useState('');
   const [error, setError] = useState('');
+  const [result, setResult] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const res = await fetch('/api/shorten', {
-      method: 'POST',
-      body: JSON.stringify({ url, alias }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setShortened(`${window.location.origin}/${alias}`);
-      setError('');
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const res = await createNewAlias(
+      (data.alias as string).trim(),
+      (data.url as string).trim()
+    );
+    if (typeof res === 'string') {
+      setError(res);
+      setResult('');
     } else {
-      setError(data.error);
+      setError('');
+      setResult(`${location.origin}/${res.alias}`);
     }
   };
 
   return (
-    <main className="p-6 max-w-xl mx-auto">
-      <h1>CS391 mp-5</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input className="border p-2 w-full" value={url} onChange={e => setUrl(e.target.value)} placeholder="Enter full URL" />
-        <input className="border p-2 w-full" value={alias} onChange={e => setAlias(e.target.value)} placeholder="Enter custom alias" />
-        <button className="bg-blue-600 text-white px-4 py-2" type="submit">Shorten</button>
+    <div className="px-4 py-8">
+      <h1 className="text-2xl font-bold text-center mb-6">URL Shortener</h1>
+
+      <form
+        onSubmit={onSubmit}
+        className="max-w-md mx-auto flex flex-col space-y-4"
+      >
+        <label className="flex flex-col text-sm">
+          Long URL
+          <input
+            name="url"
+            type="url"
+            required
+            className="mt-1 p-2 border rounded w-full"
+          />
+        </label>
+
+        <label className="flex flex-col text-sm">
+          Alias
+          <input
+            name="alias"
+            required
+            className="mt-1 p-2 border rounded w-full"
+          />
+        </label>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+        >
+          Shorten
+        </button>
       </form>
-      {shortened && <p className="mt-4">Shortened URL: <a href={shortened} className="text-blue-500 underline">{shortened}</a></p>}
-      {error && <p className="mt-4 text-red-600">{error}</p>}
-    </main>
+
+      {error && (
+        <p className="text-red text-center mt-4">{error}</p>
+      )}
+
+      {result && (
+        <div className="max-w-md mx-auto mt-4 flex items-center justify-between">
+          <a
+            href={result}
+            className="text-blue break-all"
+          >
+            {result}
+          </a>
+          <button
+            onClick={() => navigator.clipboard.writeText(result)}
+            className="ml-2 px-3 py-1 bg-blue text-white rounded"
+          >
+            Copy
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
-
