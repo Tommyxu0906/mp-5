@@ -1,4 +1,3 @@
-// lib/db.ts
 import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI!;
@@ -8,7 +7,7 @@ let client;
 let clientPromise: Promise<MongoClient>;
 
 declare global {
-  var _mongoClientPromise: Promise<MongoClient>;
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
 if (!process.env.MONGODB_URI) {
